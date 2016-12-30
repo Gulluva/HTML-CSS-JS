@@ -11,6 +11,9 @@ var POP = {
     currentHeight:  null,
     canvas: null,
     ctx:  null,
+    scale: 1,
+    offsetTop: 0, 
+    offsetLeft: 0,
 
     init: function() {
 
@@ -98,6 +101,9 @@ var POP = {
         // we're essentially scaling it with CSS
         POP.canvas.style.width = POP.currentWidth + 'px';
         POP.canvas.style.height = POP.currentHeight + 'px';
+        POP.scale = POP.currentWidth/POP.WIDTH;
+        POP.offsetLeft = POP.canvas.offsetLeft;
+        POP.offsetTop = POP.canvas.offsetTop;
 
         // we use a timeout here because some mobile
         // browsers don't fire if there is not
@@ -122,14 +128,46 @@ POP.Input = {
     x: 0,
     y: 0,
     tapped :false,
+    str : "",
     
 
     set: function(data) {
-        this.x = data.pageX;
-        this.y = data.pageY;
+        this.x = (data.pageX - POP.offsetLeft) / POP.scale;
+        this.y = (data.pageY - POP.offsetTop) / POP.scale;
         this.tapped = true; 
 
-        POP.Draw.circle(this.x, this.y, 10, 'red');
+
+        if (this.x > 10 && this.x <20){
+/*        POP.Draw.circle(this.x, this.y, 10, 'red');
+        str = this.x + ", " + this.y;
+        POP.Draw.text(str, this.x, this.y, 10, 'black')
+*/
+            if (this.y > 5 && this.y <25){
+                // create a function to get pos which returns array of x, y and gives it a direction and speed
+
+                  POP.Draw.circle(200, 120, 40, 'yellow');
+        
+            }
+
+            if (this.y > 90 && this.y <110){
+
+                  POP.Draw.circle(90, 320, 40, 'blue');
+        
+            }
+
+            if (this.y > 130 && this.y <150){
+
+                  POP.Draw.circle(70, 70, 40, 'green');
+        
+            }
+
+            if (this.y > 160 && this.y <180){
+
+                  POP.Draw.circle(240, 320, 40, 'red');
+        
+            }
+
+        }
     }
 
 };
