@@ -104,7 +104,19 @@ var POP = {
 // and checked for collisions, etc.
 update: function() {
 
-    var i;
+// at the start of POP.update, we set a flag for checking collisions
+    var i,
+        checkCollision = false; // we only need to check for a collision
+                                // if the user tapped on this game tick
+
+// and then incorporate into the main logic
+
+
+
+
+
+
+
 
     // spawn a new instance of Touch
     // if the user has tapped the screen
@@ -114,46 +126,59 @@ update: function() {
             if (POP.Input.y > 5 && POP.Input.y <25){
                 // create a function to get pos which returns array of x, y and gives it a direction and speed
             
-                POP.entities.push(new POP.Bubble(200, 120, 'yellow'));
+                POP.entities.push(new POP.Bubble(200, 120, 'yellow', 11));
             }
             
 
             if (POP.Input.y > 90 && POP.Input.y <110){
 
-                POP.entities.push(new POP.Bubble(70, 190, 'blue'));
+                POP.entities.push(new POP.Bubble(70, 190, 'blue', 5));
         
             }
 
             if (POP.Input.y > 130 && POP.Input.y <150){
-                POP.entities.push(new POP.Bubble(220, 250, 'green'));
+                POP.entities.push(new POP.Bubble(220, 250, 'green', 3));
         
             }
 
             if (POP.Input.y > 160 && POP.Input.y <180){
 
-                POP.entities.push(new POP.Bubble(60, 120, 'red'));
+                POP.entities.push(new POP.Bubble(60, 120, 'red', 2));
         
             }
+        } 
+        else {
+            POP.entities.push(new POP.Touch(POP.Input.x, POP.Input.y));
         }
 
         // set tapped back to false
         // to avoid spawning a new touch
         // in the next cycle
         POP.Input.tapped = false;
+        checkCollision = true;
         }
  // cycle through all entities and update as necessary
     for (i = 0; i < POP.entities.length; i += 1) {
         POP.entities[i].update();
- 
+
+        if (POP.entities[i].type === 'bubble' && checkCollision) {
+            hit = POP.collides(POP.entities[i], 
+                                {x: POP.Input.x, y: POP.Input.y, r: 7});
+            POP.entities[i].remove = hit;
+        }
+
         // delete from array if remove property
-        // flag is set to true
+        // is set to true
         if (POP.entities[i].remove) {
             POP.entities.splice(i, 1);
         }
-        
     }
-
 },
+
+
+
+
+
 // this is where we draw all the entities
 render: function() {
 
@@ -244,11 +269,11 @@ POP.Input = {
         this.tapped = true; 
 
 
-        if (this.x > 10 && this.x <20){
-/*        POP.Draw.circle(this.x, this.y, 10, 'red');
+/*        if (this.x > 10 && this.x <20){
+        POP.Draw.circle(this.x, this.y, 10, 'red');
         str = this.x + ", " + this.y;
         POP.Draw.text(str, this.x, this.y, 10, 'black')
-*/
+
             if (this.y > 5 && this.y <25){
                 // create a function to get pos which returns array of x, y and gives it a direction and speed
 
@@ -274,19 +299,44 @@ POP.Input = {
         
             }
 
-        }
+        }*/
     }
 
 };
 
+POP.Touch = function(x, y) {
 
-POP.Bubble = function(x,y,col) {
+    this.type = 'touch';    // we'll need this later
+    this.x = x;             // the x coordinate
+    this.y = y;             // the y coordinate
+    this.r = 5;             // the radius
+    this.opacity = 1;       // initial opacity; the dot will fade out
+    this.fade = 0.05;       // amount by which to fade on each game tick
+    this.remove = false;    // flag for removing this entity. POP.update
+                            // will take care of this
+
+    this.update = function() {
+        // reduce the opacity accordingly
+        this.opacity -= this.fade; 
+        // if opacity if 0 or less, flag for removal
+        this.remove = (this.opacity < 0) ? true : false;
+    };
+
+    this.render = function() {
+        POP.Draw.circle(this.x, this.y, this.r, 'rgba(255,255,255,'+this.opacity+')');
+    };
+
+};
+
+
+POP.Bubble = function(x,y,col, value) {
 
     this.type = 'bubble';
     this.x = x;
     this.r = 40;                // the radius of the bubble
     this.y = y; // make sure it starts off screen
-    this.col = col
+    this.col = col;
+    this.value = value
     this.remove = false;
 
     this.update = function() {
@@ -307,6 +357,22 @@ POP.Bubble = function(x,y,col) {
     };
 
 };
+
+// this function checks if two circles overlap
+POP.collides = function(a, b) {
+
+        var distance_squared = ( ((a.x - b.x) * (a.x - b.x)) + 
+                                ((a.y - b.y) * (a.y - b.y)));
+
+        var radii_squared = (a.r + b.r) * (a.r + b.r);
+
+        if (distance_squared < radii_squared) {
+            return true;
+        } else {
+            return false;
+        }
+};
+
 
 window.addEventListener('load', POP.init, false);
 window.addEventListener('resize', POP.resize, false);
