@@ -21,6 +21,7 @@ var POP = {
     // we'll set the rest of these
     // in the init function
     RATIO:  null,
+    cardval: 1,
     currentWidth:  null,
     currentHeight:  null,
     canvas: null,
@@ -144,9 +145,19 @@ update: function() {
             if (POP.Input.y > 160 && POP.Input.y <180){
 
                 POP.entities.push(new POP.Bubble(60, 120, 'red', 2));
+
         
             }
+
+
+
         } 
+            if (POP.Input.y < 50 && POP.Input.x >20){
+
+                POP.entities.push(new POP.Numdisplay(cardval));
+        
+            }
+
         else {
             POP.entities.push(new POP.Touch(POP.Input.x, POP.Input.y));
         }
@@ -328,6 +339,26 @@ POP.Touch = function(x, y) {
 
 };
 
+POP.Numdisplay = function(value) {
+
+    this.value = value;
+    this.opcity = 1;
+    this.remove = false;
+
+    this.update = function(){
+        this.opcity -= 0.02;
+        if (this.opcity < 0){
+            this.remove = true;
+        }
+    }
+
+    this.render = function() {
+        POP.Draw.roundedRect(50,100,140,80,30,'gray');
+        POP.Draw.text(this.value, 80, 120, 30, 'black');
+
+    }
+}
+
 
 POP.Bubble = function(x,y,col, value) {
 
@@ -338,15 +369,30 @@ POP.Bubble = function(x,y,col, value) {
     this.col = col;
     this.value = value
     this.remove = false;
+    this.directionx = value;
+    this.directiony = -1;
 
     this.update = function() {
 
         // move up the screen by 1 pixel
-        this.y -= 1;
+        this.y += this.directiony;
+        this.x += this.directionx;
 
-        // if off screen, flag for removal
-        if (this.y < -10) {
-            this.remove = true;
+        // if near border, change direction
+        if (this.y < 55) {
+            this.directiony = -this.directiony;
+        }
+
+        if (this.y > 415) {
+            this.directiony = -this.directiony;
+        }
+
+        if (this.x < 55) {
+            this.directionx = -this.directionx;
+        }
+
+        if (this.x > 255) {
+            this.directionx = -this.directionx;
         }
 
     };
