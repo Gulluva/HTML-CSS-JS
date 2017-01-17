@@ -365,7 +365,7 @@ POP.Numdisplay = function(value) {
     };
 
     this.render = function() {
-        POP.Draw.circle(this.x, this.y, this.r, 'rgba(255,255,255,'+this.opacity+')');
+        POP.Draw.roundedRect(this.x - 30,this.y - 30,100,60,20,'rgba(220,220,220,'+this.opacity+')');
         POP.Draw.text(POP.cardval, this.x, this.y, 24, 'black')
     };
 
