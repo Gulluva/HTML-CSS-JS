@@ -128,24 +128,25 @@ update: function() {
                 // create a function to get pos which returns array of x, y and gives it a direction and speed
             
                 POP.entities.push(new POP.Bubble(200, 120, 'yellow', 11));
+                POP.cardval *= 11;
             }
             
 
             if (POP.Input.y > 90 && POP.Input.y <110){
 
                 POP.entities.push(new POP.Bubble(70, 190, 'blue', 5));
-        
+                 POP.cardval = POP.cardval * 5;       
             }
 
             if (POP.Input.y > 130 && POP.Input.y <150){
                 POP.entities.push(new POP.Bubble(220, 250, 'green', 3));
-        
+                POP.cardval *= 3;        
             }
 
             if (POP.Input.y > 160 && POP.Input.y <180){
 
                 POP.entities.push(new POP.Bubble(60, 120, 'red', 2));
-
+                POP.cardval *= 2;
         
             }
 
@@ -154,7 +155,7 @@ update: function() {
         } 
             if (POP.Input.y < 50 && POP.Input.x >20){
 
-                POP.entities.push(new POP.Numdisplay(cardval));
+                POP.entities.push(new POP.Numdisplay(POP.cardval));
         
             }
 
@@ -168,6 +169,7 @@ update: function() {
         POP.Input.tapped = false;
         checkCollision = true;
         }
+        //POP.cardval = 1;
  // cycle through all entities and update as necessary
     for (i = 0; i < POP.entities.length; i += 1) {
         POP.entities[i].update();
@@ -181,8 +183,13 @@ update: function() {
         // delete from array if remove property
         // is set to true
         if (POP.entities[i].remove) {
+            if (POP.entities[i].type === 'bubble'){
+                POP.cardval /= POP.entities[i].value;
+            }
             POP.entities.splice(i, 1);
+
         }
+
     }
 },
 
@@ -341,23 +348,28 @@ POP.Touch = function(x, y) {
 
 POP.Numdisplay = function(value) {
 
-    this.value = value;
-    this.opcity = 1;
-    this.remove = false;
+    this.type = 'label';    // we'll need this later
+    this.x = 130;             // the x coordinate
+    this.y = 220;             // the y coordinate
+    this.r = 55;             // the radius
+    this.opacity = 1;       // initial opacity; the dot will fade out
+    this.fade = 0.01;       // amount by which to fade on each game tick
+    this.remove = false;    // flag for removing this entity. POP.update
+                            // will take care of this
 
-    this.update = function(){
-        this.opcity -= 0.02;
-        if (this.opcity < 0){
-            this.remove = true;
-        }
-    }
+    this.update = function() {
+        // reduce the opacity accordingly
+        this.opacity -= this.fade; 
+        // if opacity if 0 or less, flag for removal
+        this.remove = (this.opacity < 0) ? true : false;
+    };
 
     this.render = function() {
-        POP.Draw.roundedRect(50,100,140,80,30,'gray');
-        POP.Draw.text(this.value, 80, 120, 30, 'black');
+        POP.Draw.circle(this.x, this.y, this.r, 'rgba(255,255,255,'+this.opacity+')');
+        POP.Draw.text(POP.cardval, this.x, this.y, 24, 'black')
+    };
 
-    }
-}
+};
 
 
 POP.Bubble = function(x,y,col, value) {
